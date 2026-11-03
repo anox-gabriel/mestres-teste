@@ -1,1 +1,597 @@
+<title>Mestres do Seguro Atacado</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: palco único em tela cheia (topbar, slide rolável, rodapé de controles), identidade navy + ouro da marca, tipografia grande e números em mono. */
+:root{
+  --bg:#060d1b; --surface:#0d1a33; --surface-2:#12234a; --line:rgba(160,185,235,.16);
+  --fg:#eef2fb; --muted:#93a1bf; --gold:#f6b51b; --gold-ink:#1a1303; --blue:#3b7bff;
+  --good:#38d39f; --bad:#ff6b6b;
+  --display:'Bricolage Grotesque','Arial Narrow',Arial,sans-serif;
+  --body:'DM Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --mono:'JetBrains Mono',ui-monospace,Menlo,Consolas,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--fg);font:16px/1.5 var(--body);overflow:hidden;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:6px}
+h1,h2,h3{font-family:var(--display);margin:0;text-wrap:balance;letter-spacing:-.02em;line-height:1.02}
+p{margin:0}
+.deck{position:relative;height:100%;display:flex;flex-direction:column;max-width:1240px;margin:0 auto}
+.ambient{position:fixed;inset:0;pointer-events:none;z-index:0;
+  background:radial-gradient(60% 50% at 85% 0%,rgba(59,123,255,.22),transparent 70%),radial-gradient(45% 40% at 5% 100%,rgba(246,181,27,.12),transparent 70%)}
+.orbs{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.orbs i{position:absolute;border-radius:50%;filter:blur(70px);opacity:.35;animation:drift 18s ease-in-out infinite alternate}
+.orbs i:nth-child(1){width:280px;height:280px;background:var(--blue);left:-80px;top:20%}
+.orbs i:nth-child(2){width:220px;height:220px;background:var(--gold);right:-60px;bottom:10%;animation-delay:-6s;opacity:.18}
+@keyframes drift{to{transform:translate(60px,-50px) scale(1.15)}}
 
+.topbar{position:relative;z-index:5;display:flex;align-items:center;gap:12px;padding-top:max(14px,env(safe-area-inset-top,0px));padding-bottom:10px}
+.brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;letter-spacing:.04em;font-size:13px;text-transform:uppercase;line-height:1}
+.brand svg{width:26px;height:26px;flex:none}
+.brand span b{color:var(--gold);display:block}
+.top-meta{margin-left:auto;display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.08em}
+.timer{padding:5px 9px;border:1px solid var(--line);border-radius:99px;min-width:62px;text-align:center}
+.ibtn{display:inline-grid;place-items:center;width:38px;height:38px;border-radius:10px;background:rgba(255,255,255,.04);border:1px solid var(--line);transition:.2s}
+.ibtn:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.3)}
+.ibtn[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.ibtn svg{width:18px;height:18px}
+.progress{position:relative;z-index:5;display:flex;gap:4px;padding-bottom:6px}
+.progress button{flex:1;height:18px;padding:0;border:0;background:none;position:relative}
+.progress button::after{content:"";position:absolute;left:0;right:0;top:7px;height:3px;border-radius:3px;background:var(--line);transition:.3s}
+.progress button.on::after{background:var(--gold)}
+.progress button:hover::after{height:5px;top:6px}
+
+.stage{position:relative;z-index:2;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--line) transparent}
+.slide{min-height:100%;display:flex;align-items:center;animation:in .55s cubic-bezier(.2,.7,.2,1) both}
+.slide.back{animation-name:inback}
+@keyframes in{from{opacity:0;transform:translateX(28px)}to{opacity:1;transform:none}}
+@keyframes inback{from{opacity:0;transform:translateX(-28px)}to{opacity:1;transform:none}}
+.slide-inner{width:100%;padding-block:18px 28px;display:flex;flex-direction:column;gap:20px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.18em;color:var(--gold);text-transform:uppercase}
+h2{font-size:clamp(30px,5vw,60px);font-weight:800}
+.lead{font-size:clamp(17px,2vw,22px);color:#cdd6ea;max-width:62ch}
+.lead em{color:var(--gold);font-style:normal}
+.hint-line{font-family:var(--mono);font-size:11.5px;letter-spacing:.06em;color:var(--muted);display:flex;align-items:center;gap:8px}
+.hint-line::before{content:"";width:8px;height:8px;border-radius:50%;background:var(--gold);animation:pulse 1.6s infinite}
+@keyframes pulse{50%{opacity:.25;transform:scale(.7)}}
+
+.panel{background:linear-gradient(160deg,rgba(18,35,74,.85),rgba(10,20,42,.9));border:1px solid var(--line);border-radius:18px;padding:22px}
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.1fr);gap:28px;align-items:center}
+.split.wide-r{grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr)}
+.mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+.gold{color:var(--gold)} .blue{color:var(--blue)} .good{color:var(--good)} .bad{color:var(--bad)}
+
+/* cover */
+.cover{align-items:center;text-align:left}
+.cover h1{font-size:clamp(46px,10vw,132px);font-weight:800;line-height:.92;background:linear-gradient(100deg,#fff 30%,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cover .sub{font-size:clamp(18px,2.4vw,28px);color:#cdd6ea;max-width:30ch}
+.cover-rule{width:90px;height:4px;background:var(--gold);border-radius:4px}
+.big-logo{display:flex;align-items:center;gap:12px;font-family:var(--display);font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.big-logo svg{width:44px;height:44px}
+.cover-tags{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:inline-flex;align-items:center;gap:6px;padding:7px 13px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-size:13.5px;transition:.2s}
+button.chip:hover{border-color:var(--gold)}
+button.chip.on{background:var(--gold);color:var(--gold-ink);border-color:var(--gold);font-weight:700}
+
+/* cards */
+.grid{display:grid;gap:14px}
+.g4{grid-template-columns:repeat(4,minmax(0,1fr))} .g3{grid-template-columns:repeat(3,minmax(0,1fr))} .g2{grid-template-columns:repeat(2,minmax(0,1fr))}
+.flip{position:relative;text-align:left;min-height:170px;padding:18px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.035);transition:.25s;display:flex;flex-direction:column;gap:10px;justify-content:space-between;animation:rise .6s both;animation-delay:calc(var(--i)*90ms)}
+@keyframes rise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.flip:hover{transform:translateY(-3px);border-color:rgba(246,181,27,.5)}
+.flip .num{font-family:var(--mono);color:var(--gold);font-size:13px}
+.flip .more{font-size:14px;color:var(--muted);max-height:0;opacity:0;overflow:hidden;transition:.35s}
+.flip.open{background:rgba(246,181,27,.09);border-color:var(--gold)}
+.flip.open .more{max-height:160px;opacity:1;color:#dfe6f6}
+.flip .t{font-family:var(--display);font-weight:700;font-size:19px;line-height:1.15}
+
+/* sliders */
+.field{display:flex;flex-direction:column;gap:8px}
+.field label{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#cdd6ea}
+.field output{font-family:var(--mono);font-weight:700;color:var(--gold);font-variant-numeric:tabular-nums}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;outline-offset:6px;
+  background:linear-gradient(90deg,var(--gold) var(--p,50%),rgba(255,255,255,.14) var(--p,50%))}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:#fff;border:4px solid var(--gold);cursor:grab;box-shadow:0 2px 10px rgba(0,0,0,.5)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:#fff;border:4px solid var(--gold);cursor:grab}
+.stack{display:flex;flex-direction:column;gap:18px}
+
+/* bars */
+.bar-row{display:flex;flex-direction:column;gap:6px}
+.bar-row .lab{display:flex;justify-content:space-between;gap:10px;font-size:14px;color:#cdd6ea}
+.bar{height:34px;border-radius:9px;background:rgba(255,255,255,.07);overflow:hidden}
+.bar i{display:flex;align-items:center;justify-content:flex-end;padding-right:10px;height:100%;min-width:44px;width:var(--w,50%);font-family:var(--mono);font-weight:700;font-size:13px;transition:width .6s cubic-bezier(.2,.7,.2,1)}
+.bar.v i{background:#58627c;color:#fff} .bar.a i{background:linear-gradient(90deg,#c88d00,var(--gold));color:var(--gold-ink)}
+
+/* chart */
+svg text{font-family:var(--mono)}
+.chart-box{position:relative}
+.chart-box svg{width:100%;height:auto;display:block}
+.tt{position:absolute;pointer-events:none;background:#fff;color:#0a1630;border-radius:12px;padding:10px 13px;font-size:12px;box-shadow:0 12px 30px rgba(0,0,0,.45);transform:translate(-50%,-110%);width:max-content;max-width:min(210px,70%);transition:left .15s,top .15s}
+.tt strong{display:block;font-family:var(--mono);font-size:16px}
+.legend{display:flex;gap:16px;flex-wrap:wrap;font-size:13px;color:#cdd6ea;margin-top:6px}
+.legend i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:6px}
+
+/* calculator */
+.calc{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.05fr);gap:20px}
+.result-main small{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase}
+.result-main strong{display:block;font-family:var(--display);font-weight:800;font-size:clamp(38px,6vw,68px);line-height:1;margin-block:6px;color:var(--gold);font-variant-numeric:tabular-nums}
+.kpis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi{padding:12px;border-radius:12px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.kpi small{display:block;font-size:11px;color:var(--muted);line-height:1.3}
+.kpi b{font-family:var(--mono);font-size:clamp(13px,1.6vw,17px);font-variant-numeric:tabular-nums}
+.presets{display:flex;gap:8px;flex-wrap:wrap}
+.mult{display:inline-flex;align-items:baseline;gap:8px;font-family:var(--display);font-weight:800;font-size:clamp(28px,4vw,44px)}
+.disc{font-size:12px;color:var(--muted)}
+
+/* tabs / steps */
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:10px 16px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);font-weight:700;transition:.2s}
+.tab.on{background:var(--gold);color:var(--gold-ink);border-color:var(--gold)}
+.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:10px}
+.list li{display:flex;gap:10px;align-items:flex-start;color:#dbe3f5}
+.list svg{flex:none;width:18px;height:18px;color:var(--good);margin-top:3px}
+.steps{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.step{text-align:left;padding:14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.035);display:flex;flex-direction:column;gap:6px;transition:.2s;position:relative}
+.step .n{font-family:var(--mono);color:var(--gold);font-size:12px}
+.step b{font-family:var(--display);font-size:17px;line-height:1.1}
+.step.on{border-color:var(--gold);background:rgba(246,181,27,.1)}
+.step.done .n::after{content:" ✓";color:var(--good)}
+.quote-box{position:relative;background:rgba(0,0,0,.28);border:1px dashed rgba(246,181,27,.5);border-radius:12px;padding:14px 14px 14px 16px;font-size:15px;color:#e9eefb}
+.copy{margin-top:10px;padding:7px 12px;border-radius:9px;border:1px solid var(--line);background:rgba(255,255,255,.06);font-size:13px}
+.copy:hover{border-color:var(--gold)}
+
+/* compare */
+.cmp{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line)}
+.cmp-layer{padding:22px;display:grid;gap:12px}
+.cmp-layer.before{background:#0b1327;color:#aeb9d3}
+.cmp-layer.after{position:absolute;inset:0;background:linear-gradient(150deg,#12306d,#0b1d45);clip-path:inset(0 0 0 var(--x,50%))}
+.cmp-row{display:grid;grid-template-columns:96px 1fr;gap:12px;align-items:baseline}
+.cmp-row small{font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;opacity:.7}
+.cmp-row b{font-family:var(--display);font-size:clamp(15px,1.8vw,20px);line-height:1.15}
+.after .cmp-row b{color:#fff}
+.cmp-tag{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase}
+.after .cmp-tag{color:var(--gold)}
+.cmp-handle{position:absolute;top:0;bottom:0;left:var(--x,50%);width:2px;background:var(--gold);pointer-events:none}
+.cmp-handle::after{content:"↔";position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:34px;height:34px;border-radius:50%;background:var(--gold);color:var(--gold-ink);display:grid;place-items:center;font-weight:700}
+.cmp input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0}
+
+/* quiz */
+.qopts{display:grid;gap:10px}
+.qopt{text-align:left;padding:14px 16px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.04);transition:.2s}
+.qopt:hover{border-color:var(--gold);transform:translateX(4px)}
+.qbar{height:4px;border-radius:4px;background:var(--line);overflow:hidden}
+.qbar i{display:block;height:100%;background:var(--gold);width:var(--w,0%);transition:.4s}
+.profile{font-family:var(--display);font-weight:800;font-size:clamp(30px,5vw,54px);color:var(--gold);line-height:1}
+
+/* roadmap */
+.road{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.phase{padding:16px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.035);display:flex;flex-direction:column;gap:10px}
+.phase h3{font-size:22px}
+.phase .days{font-family:var(--mono);font-size:11px;letter-spacing:.14em;color:var(--gold)}
+.chk{display:flex;gap:10px;align-items:flex-start;text-align:left;background:none;border:0;padding:4px 0;color:#dbe3f5;font-size:14.5px}
+.chk .box{flex:none;width:20px;height:20px;border-radius:6px;border:2px solid var(--muted);display:grid;place-items:center;margin-top:1px;transition:.2s}
+.chk.on .box{background:var(--good);border-color:var(--good);color:#04241a}
+.chk.on span:last-child{text-decoration:line-through;opacity:.6}
+.chk .box svg{width:13px;height:13px;opacity:0}.chk.on .box svg{opacity:1}
+.ring{--v:0;width:92px;height:92px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--v)*1%),rgba(255,255,255,.1) 0);display:grid;place-items:center;flex:none;transition:.4s}
+.ring span{width:74px;height:74px;border-radius:50%;background:var(--surface);display:grid;place-items:center;font-family:var(--mono);font-weight:700}
+
+/* form / cta */
+.form{display:grid;gap:12px}
+.in{display:flex;flex-direction:column;gap:6px;font-size:13px;color:var(--muted)}
+.in input{background:rgba(0,0,0,.3);border:1px solid var(--line);border-radius:10px;padding:12px 14px;color:var(--fg);font:inherit;font-size:16px}
+.in input:focus{outline:none;border-color:var(--gold)}
+.in .err{color:var(--bad);min-height:1em;font-size:12px}
+.cta-btn{display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:15px 24px;border-radius:14px;border:0;background:var(--gold);color:var(--gold-ink);font-weight:800;font-size:16px;transition:.2s;box-shadow:0 10px 30px rgba(246,181,27,.28)}
+.cta-btn:hover{transform:translateY(-2px);box-shadow:0 14px 36px rgba(246,181,27,.4)}
+.cta-btn svg{width:18px;height:18px}
+.summary{white-space:pre-wrap;font-family:var(--mono);font-size:12.5px;background:rgba(0,0,0,.35);border-radius:12px;padding:14px;color:#dfe6f6;max-height:260px;overflow:auto}
+
+/* controls */
+.controls{position:relative;z-index:5;display:flex;align-items:center;gap:12px;padding-top:10px;padding-bottom:max(14px,env(safe-area-inset-bottom,0px))}
+.count{font-family:var(--mono);font-size:13px;color:var(--muted)} .count b{color:var(--fg)}
+.nav{margin:0 auto;display:flex;gap:8px}
+.nav .ibtn{width:46px;height:46px;border-radius:14px}
+.nav .ibtn:disabled{opacity:.3;cursor:not-allowed}
+.start-btn{display:inline-flex;align-items:center;gap:8px;padding:0 20px;height:46px;border-radius:14px;border:0;background:var(--gold);color:var(--gold-ink);font-weight:800}
+.start-btn svg{width:17px;height:17px}
+.kbd{font-family:var(--mono);font-size:11px;color:var(--muted)}
+
+/* overlays */
+.overlay{position:fixed;inset:0;z-index:50;background:rgba(3,7,16,.88);backdrop-filter:blur(8px);padding:max(20px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(20px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px));overflow:auto}
+.overlay .box{max-width:1100px;margin:0 auto;display:flex;flex-direction:column;gap:18px}
+.ov-head{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.thumbs{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+.thumb{text-align:left;padding:14px;border-radius:14px;border:1px solid var(--line);background:var(--surface);display:flex;flex-direction:column;gap:6px;min-height:96px;transition:.2s}
+.thumb:hover,.thumb.cur{border-color:var(--gold)}
+.thumb small{font-family:var(--mono);color:var(--gold);font-size:11px}
+.thumb b{font-family:var(--display);font-size:16px;line-height:1.15}
+.keys{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+.keys div{display:flex;gap:10px;align-items:center;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);font-size:14px}
+kbd{font-family:var(--mono);font-size:12px;background:rgba(255,255,255,.1);border-radius:6px;padding:3px 8px;border:1px solid var(--line)}
+.notes{position:fixed;left:max(16px,env(safe-area-inset-left,0px));right:max(16px,env(safe-area-inset-right,0px));bottom:calc(76px + env(safe-area-inset-bottom,0px));z-index:30;max-width:760px;margin:0 auto;background:#fff;color:#0a1630;border-radius:16px;padding:16px 18px;box-shadow:0 20px 50px rgba(0,0,0,.5);font-size:15px}
+.notes small{font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:#5a6b8f;display:block;margin-bottom:4px}
+.laser{position:fixed;width:26px;height:26px;margin:-13px 0 0 -13px;border-radius:50%;background:rgba(255,60,60,.85);box-shadow:0 0 0 6px rgba(255,60,60,.25),0 0 28px 10px rgba(255,60,60,.5);pointer-events:none;z-index:99}
+canvas.confetti{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:80}
+.toast{position:fixed;left:50%;bottom:calc(88px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:99px;font-weight:700;font-size:14px;z-index:90;animation:in .3s both}
+
+@media (max-width:820px){
+  .split,.split.wide-r,.calc{grid-template-columns:minmax(0,1fr)}
+  .g4{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .g3,.road{grid-template-columns:minmax(0,1fr)}
+  .steps{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .kpis{grid-template-columns:minmax(0,1fr) minmax(0,1fr)}
+  .kbd,.top-meta .full{display:none}
+  .cmp-row{grid-template-columns:1fr;gap:2px}
+  .flip{min-height:150px}
+}
+@media (max-width:420px){.g4{grid-template-columns:minmax(0,1fr)}.brand span{display:none}}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;transition-duration:.01ms!important}}
+</style>
+
+<main class="deck" id="deck">
+  <div class="ambient"></div>
+  <div class="orbs" aria-hidden="true"><i></i><i></i></div>
+  <header class="topbar">
+    <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7L16 2Z" fill="none" stroke="#f6b51b" stroke-width="2.2"/><path d="M10 17l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Mestres<b>do Seguro</b></span></div>
+    <div class="top-meta"><span class="full">APRESENTAÇÃO ESTRATÉGICA /// 2025</span><span class="timer" id="timer" title="Tempo de apresentação">00:00</span>
+      <button class="ibtn" id="bNotes" aria-pressed="false" aria-label="Notas do apresentador" title="Notas (N)"></button>
+      <button class="ibtn" id="bLaser" aria-pressed="false" aria-label="Ponteiro laser" title="Laser (L)"></button>
+      <button class="ibtn" id="bGrid" aria-label="Visão geral dos slides" title="Visão geral (G)"></button>
+    </div>
+  </header>
+  <div class="progress" id="progress"></div>
+  <section class="stage" id="stage" aria-live="polite"></section>
+  <footer class="controls">
+    <span class="count" id="count"></span>
+    <div class="nav"><button class="ibtn" id="prev" aria-label="Slide anterior"></button><span id="nextWrap"></span></div>
+    <span class="kbd">← → navegar · ? atalhos</span>
+  </footer>
+  <div id="notes" class="notes" hidden></div>
+</main>
+<div id="overlay" class="overlay" hidden></div>
+<div class="laser" id="laser" hidden></div>
+
+<script>
+/* ---------- util ---------- */
+const $=(s,r=document)=>r.querySelector(s), $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const brl=n=>new Intl.NumberFormat('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:0}).format(Math.round(n));
+const kfmt=n=>n>=1e6?'R$ '+(n/1e6).toFixed(1).replace('.',',')+' mi':n>=1000?'R$ '+Math.round(n/1000)+' mil':'R$ '+Math.round(n);
+const reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const ICON={
+ right:'<path d="M5 12h14M13 6l6 6-6 6"/>',left:'<path d="M19 12H5M11 6l-6 6 6 6"/>',
+ grid:'<rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/>',
+ note:'<path d="M5 3h10l4 4v14H5z"/><path d="M9 12h6M9 16h6"/>',laser:'<circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M2 12h4M18 12h4"/>',
+ check:'<path d="M5 12.5l4.5 4.5L19 7.5"/>',play:'<path d="M7 4l13 8-13 8z"/>',x:'<path d="M6 6l12 12M18 6L6 18"/>',copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V6a2 2 0 0 1 2-2h9"/>'
+};
+const ico=(n,s)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" ${s?`width="${s}" height="${s}"`:''} aria-hidden="true">${ICON[n]}</svg>`;
+function toast(t){const e=document.createElement('div');e.className='toast';e.textContent=t;document.body.appendChild(e);setTimeout(()=>e.remove(),1900)}
+async function copyText(t,btn){try{await navigator.clipboard.writeText(t);toast('Copiado!')}catch(_){const r=document.createRange();const n=btn&&btn.previousElementSibling;if(n){r.selectNodeContents(n);const s=getSelection();s.removeAllRanges();s.addRange(r);toast('Selecionado: use Ctrl+C')}}}
+function tween(el,to,fmt){const from=+el.dataset.v||0;el.dataset.v=to;if(reduce){el.textContent=fmt(to);return}
+  const t0=performance.now(),d=450;cancelAnimationFrame(el._r);const f=t=>{const k=Math.min(1,(t-t0)/d),e=1-Math.pow(1-k,3);el.textContent=fmt(from+(to-from)*e);if(k<1)el._r=requestAnimationFrame(f)};el._r=requestAnimationFrame(f)}
+function paintRange(i){i.style.setProperty('--p',((i.value-i.min)/(i.max-i.min)*100)+'%')}
+
+/* ---------- estado compartilhado (simulador) ---------- */
+const S={c:2,prem:60000,pct:12,ret:85,varejo:6000,meta:15000,varComm:200,func:60,cam:15,
+  nome:'',zap:'',cart:'',perfil:''};
+const calc=(s=S)=>{
+  const per=s.prem*s.pct/100/12; // comissão mensal por contrato ativo
+  const m=[];let y1=0;for(let i=1;i<=12;i++){const v=i*s.c*per;m.push(v);y1+=v}
+  let y2=0;const base=12*s.c*(s.ret/100);for(let i=1;i<=12;i++)y2+=(base+i*s.c)*per;
+  const run=12*s.c*per, varY=s.varejo*12;
+  return {per,m,y1,y2,run,varY,mult:varY?y1/varY:0,contratos:12*s.c}
+};
+function bindRanges(root,cb){$$('input[type=range][data-k]',root).forEach(i=>{const k=i.dataset.k;i.value=S[k];paintRange(i);
+  const out=$(`[data-out="${k}"]`,root);const fmt=i.dataset.f;const show=()=>{if(out)out.textContent=fmt==='brl'?brl(S[k]):fmt==='pct'?S[k]+'%':S[k]};show();
+  i.addEventListener('input',()=>{S[k]=+i.value;paintRange(i);show();cb&&cb(k)})})}
+const field=(k,label,min,max,step,f)=>`<div class="field"><label for="r-${k}">${label}<output data-out="${k}"></output></label><input id="r-${k}" type="range" data-k="${k}" data-f="${f||''}" min="${min}" max="${max}" step="${step}"></div>`;
+
+/* ---------- slides ---------- */
+const retailCards=[
+ ['Varejo 1 a 1: importante, mas limitado','Cada cliente exige prospecção, cotação, proposta e pós-venda próprios.'],
+ ['Cada venda = pequena comissão','Uma apólice individual rende pouco, e o esforço para fechá-la é quase o mesmo de uma grande.'],
+ ['Depende de volume alto','Para bater a meta, a conta só fecha com dezenas de vendas todo mês.'],
+ ['Agenda lotada, teto de ganho','Seu tempo é finito: mais clientes significam mais horas, não mais margem.']];
+
+const SL=[
+{eyebrow:'MESTRES DO SEGURO · 2025',nav:'Capa',
+ notes:'Abra com energia. Diga que nos próximos minutos o corretor vai ver, com os próprios números, por que atacado muda o jogo. Peça para interagir: tudo aqui é clicável.',
+ render:()=>`<div class="slide-inner cover">
+  <div class="eyebrow">MESTRES DO SEGURO · 2025</div>
+  <div class="big-logo"><svg viewBox="0 0 32 32"><path d="M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7L16 2Z" fill="none" stroke="#f6b51b" stroke-width="2.2"/><path d="M10 17l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Mestres<br>do Seguro</span></div>
+  <div class="cover-rule"></div>
+  <h1>A GRANDE<br>PLANTAÇÃO</h1>
+  <p class="sub">Vendas em atacado: frotas de caminhões e planos empresariais.</p>
+  <div class="cover-tags"><span class="chip">Simulador de ganhos</span><span class="chip">Quiz de perfil</span><span class="chip">Plano de 90 dias</span></div>
+  <p class="hint-line">Use as setas, deslize ou toque em “Iniciar”</p></div>`},
+
+{eyebrow:'01 · O CENÁRIO',nav:'A realidade do varejo',
+ notes:'Peça para o corretor clicar em cada cartão. Deixe ele se reconhecer na situação antes de apresentar a solução.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">01 · O CENÁRIO</div><h2>A realidade do varejo</h2>
+  <p class="lead">O varejo mantém você ocupado.<br><em>Mas não necessariamente crescendo.</em></p>
+  <div class="grid g4">${retailCards.map((c,i)=>`<button class="flip" style="--i:${i}" aria-expanded="false"><span class="num">0${i+1}</span><span class="t">${c[0]}</span><span class="more">${c[1]}</span></button>`).join('')}</div>
+  <p class="hint-line">Toque nos cartões para ver o que está por trás</p></div>`,
+ init(el){$$('.flip',el).forEach(b=>b.onclick=()=>{const o=b.classList.toggle('open');b.setAttribute('aria-expanded',o)})}},
+
+{eyebrow:'02 · O DESAFIO',nav:'Você vale mais',
+ notes:'Use o slider de meta. Mostre a diferença brutal entre vender dezenas de apólices e manter poucos contratos empresariais.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">02 · O DESAFIO</div><h2>Você vale mais do que está ganhando.</h2>
+  <p class="lead">O esforço é grande. O retorno, nem tanto. Defina uma meta e veja o que ela exige.</p>
+  <div class="split wide-r"><div class="panel stack">
+   ${field('meta','Sua meta de renda mensal',5000,50000,1000,'brl')}
+   ${field('varComm','Comissão média por apólice no varejo',80,500,10,'brl')}
+   ${field('prem','Prêmio anual médio de um contrato empresarial',10000,200000,5000,'brl')}
+   <p class="disc">Valores ilustrativos. Ajuste para a sua realidade e para a tabela de comissão vigente.</p></div>
+   <div class="panel stack" id="needs"></div></div></div>`,
+ init(el){const upd=()=>{const per=S.prem*S.pct/100/12,v=Math.ceil(S.meta/S.varComm),a=Math.max(1,Math.ceil(S.meta/per));
+   const mx=Math.max(v,a);$('#needs',el).innerHTML=`
+   <div class="bar-row"><div class="lab"><span>Varejo: apólices vendidas todo mês</span></div><div class="bar v" style="--w:${v/mx*100}%"><i>${v}</i></div></div>
+   <div class="bar-row"><div class="lab"><span>Atacado: contratos ativos na carteira</span></div><div class="bar a" style="--w:${Math.max(a/mx*100,8)}%"><i>${a}</i></div></div>
+   <p class="lead" style="font-size:18px">Para ${brl(S.meta)} por mês, o atacado pede <b class="gold">${(v/a).toFixed(0)}x menos</b> relacionamentos ativos, e a comissão se repete mês a mês.</p>
+   <div class="cover-tags"><span class="chip">Tempo vs. retorno</span><span class="chip">Comissão que não escala</span><span class="chip">Grandes vendas na mesa</span></div>`};
+   bindRanges(el,upd);upd()}},
+
+{eyebrow:'03 · O CUSTO DA INÉRCIA',nav:'O custo de continuar assim',
+ notes:'Arraste o mês. O ponto de cruzamento mostra quando o atacado passa o varejo. Os dados vêm do simulador, então volte aqui depois de ajustar.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">03 · O CUSTO DA INÉRCIA</div><h2>A implicação de continuar assim</h2>
+  <div class="split"><div class="stack"><p class="lead">Enquanto você repete o mesmo ciclo, outros estão construindo escala.</p>
+   <ul class="list"><li>${ico('check')}Agenda sempre cheia, faturamento sempre igual</li><li>${ico('check')}Teto de comissão que não quebra</li><li>${ico('check')}Concorrentes já vendendo em atacado</li></ul>
+   ${field('varejo','Seu ganho mensal hoje',2000,30000,500,'brl')}</div>
+   <div class="panel"><div class="chart-box" id="cb"><svg id="svg" viewBox="0 0 650 280" role="img" aria-label="Comissão mensal: varejo versus atacado ao longo de 12 meses"></svg><div class="tt" id="tt"></div></div>
+   <div class="field" style="margin-top:6px"><label for="mm">Mês analisado<output id="mo"></output></label><input id="mm" type="range" min="1" max="12" step="1" value="8"></div>
+   <div class="legend"><span><i style="background:#8b97b3"></i>Varejo (atual)</span><span><i style="background:var(--gold)"></i>Atacado (simulador)</span></div></div></div></div>`,
+ init(el){const svg=$('#svg',el),tt=$('#tt',el),mm=$('#mm',el);
+  const draw=()=>{const r=calc(),m=+mm.value;paintRange(mm);$('#mo',el).textContent='mês '+m;
+   const W=650,H=280,L=52,R=14,T=16,B=36,top=Math.max(r.m[11],S.varejo)*1.15;
+   const x=i=>L+(W-L-R)*i/12,y=v=>H-B-(H-T-B)*v/top;
+   const pts=[[0,0],...r.m.map((v,i)=>[i+1,v])];
+   let g='';for(let k=0;k<=4;k++){const v=top*k/4;g+=`<path d="M${L} ${y(v)}H${W-R}" stroke="rgba(160,185,235,.14)"/><text x="${L-8}" y="${y(v)+4}" text-anchor="end" font-size="10" fill="#93a1bf">${kfmt(v).replace('R$ ','')}</text>`}
+   [0,3,6,9,12].forEach(i=>g+=`<text x="${x(i)}" y="${H-12}" text-anchor="middle" font-size="10" fill="#93a1bf">${i===0?'hoje':'mês '+i}</text>`);
+   const line=pts.map((p,i)=>(i?'L':'M')+x(p[0])+' '+y(p[1])).join(' ');
+   const cross=r.m.findIndex(v=>v>=S.varejo)+1;
+   svg.innerHTML=`${g}<path d="${line} L${x(12)} ${y(0)} L${x(0)} ${y(0)}Z" fill="rgba(246,181,27,.14)"/>
+    <path d="M${x(0)} ${y(S.varejo)}H${x(12)}" stroke="#8b97b3" stroke-width="3" stroke-dasharray="6 5" fill="none"/>
+    <path d="${line}" stroke="#f6b51b" stroke-width="3.5" fill="none" stroke-linejoin="round"/>
+    ${cross?`<circle cx="${x(cross)}" cy="${y(r.m[cross-1])}" r="5" fill="#060d1b" stroke="#fff" stroke-width="2"/><text x="${x(cross)}" y="${y(r.m[cross-1])-12}" text-anchor="middle" font-size="10" fill="#fff">cruza no mês ${cross}</text>`:''}
+    <path d="M${x(m)} ${T}V${H-B}" stroke="#fff" stroke-opacity=".35"/><circle cx="${x(m)}" cy="${y(r.m[m-1])}" r="7" fill="#f6b51b" stroke="#fff" stroke-width="2.5"/>`;
+   let acc=0;for(let i=0;i<m;i++)acc+=r.m[i]-S.varejo;
+   const box=$('#cb',el),bw=box.clientWidth,px=x(m)/W*bw,py=y(r.m[m-1])/H*svg.clientHeight;
+   tt.style.left=Math.min(Math.max(px,105),bw-105)+'px';tt.style.top=py+'px';
+   tt.innerHTML=`Mês ${m}: atacado ${brl(r.m[m-1])} vs. varejo ${brl(S.varejo)}<strong class="${acc<0?'':''}" style="color:${acc>=0?'#0a7a4f':'#b32d2d'}">${acc>=0?'+':''}${brl(acc)} acumulado</strong>`};
+  bindRanges(el,draw);mm.addEventListener('input',draw);draw();addEventListener('resize',draw)}},
+
+{eyebrow:'04 · A VIRADA',nav:'Simulador de ganhos',
+ notes:'Este é o momento principal. Deixe o corretor mexer nos números e escolher um cenário. Foque no ganho recorrente no mês 12 e no multiplicador contra o varejo.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">04 · A VIRADA</div><h2>Existe um caminho mais inteligente.</h2>
+  <p class="lead">Troque quantidade por impacto. Simule o seu primeiro ano em atacado.</p>
+  <div class="calc"><div class="panel stack">
+   <div class="presets" role="group" aria-label="Cenários"><button class="chip" data-p="0">Conservador</button><button class="chip on" data-p="1">Realista</button><button class="chip" data-p="2">Agressivo</button></div>
+   ${field('c','Contratos fechados por mês',1,8,1)}
+   ${field('prem','Prêmio anual médio por contrato',10000,200000,5000,'brl')}
+   ${field('pct','Comissão sobre o prêmio',5,25,1,'pct')}
+   ${field('ret','Renovação ao fim de 12 meses',50,100,5,'pct')}
+   ${field('varejo','Seu ganho mensal atual no varejo',2000,30000,500,'brl')}</div>
+   <div class="panel stack"><div class="result-main"><small>Comissão no 1º ano</small><strong id="y1">R$ 0</strong><span class="disc">Soma dos 12 meses, com a carteira crescendo a cada contrato.</span></div>
+   <div class="kpis"><div class="kpi"><small>Renda mensal no mês 12</small><b id="run">-</b></div><div class="kpi"><small>2º ano projetado</small><b id="y2">-</b></div><div class="kpi"><small>Contratos na carteira</small><b id="ct">-</b></div></div>
+   <div class="mult"><span class="gold" id="mult">0x</span><span style="font-size:15px;font-weight:500;color:#cdd6ea;font-family:var(--body)">o que o varejo renderia no ano</span></div>
+   <svg id="mini" viewBox="0 0 400 110" role="img" aria-label="Comissão mensal projetada" style="width:100%;height:auto"></svg>
+   <p class="disc">Simulação ilustrativa. Não representa garantia de ganho nem a tabela oficial de comissões.</p></div></div></div>`,
+ init(el){const PRE=[{c:1,prem:40000,pct:10,ret:75},{c:2,prem:60000,pct:12,ret:85},{c:4,prem:90000,pct:14,ret:90}];
+  const upd=()=>{const r=calc();tween($('#y1',el),r.y1,brl);tween($('#run',el),r.run,brl);tween($('#y2',el),r.y2,brl);tween($('#ct',el),r.contratos,n=>Math.round(n));
+   tween($('#mult',el),r.mult,n=>n.toFixed(1).replace('.',',')+'x');
+   const mx=Math.max(...r.m,S.varejo)*1.1;let s=`<path d="M0 ${100-S.varejo/mx*95}H400" stroke="#8b97b3" stroke-dasharray="4 4"/>`;
+   r.m.forEach((v,i)=>{const h=v/mx*95;s+=`<rect x="${i*33+4}" y="${100-h}" width="25" height="${h}" rx="4" fill="${v>=S.varejo?'#f6b51b':'#4a5878'}"/>`});
+   $('#mini',el).innerHTML=s+`<text x="2" y="108" font-size="8" fill="#93a1bf">mês 1</text><text x="398" y="108" text-anchor="end" font-size="8" fill="#93a1bf">mês 12 · tracejado = varejo atual</text>`};
+  bindRanges(el,upd);
+  $$('[data-p]',el).forEach(b=>b.onclick=()=>{Object.assign(S,PRE[b.dataset.p]);$$('[data-p]',el).forEach(x=>x.classList.toggle('on',x===b));bindRanges(el,upd);upd()});
+  upd()}},
+
+{eyebrow:'05 · O NOVO MODELO',nav:'Venda uma vez, proteja muitos',
+ notes:'Mostre o efeito multiplicador: uma conversa com decisor protege dezenas de pessoas ou veículos.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">05 · O NOVO MODELO</div><h2>Venda uma vez. Proteja muitos.</h2>
+  <p class="lead">O atacado transforma uma relação em uma carteira inteira.</p>
+  <div class="grid g3" id="flow">${[['Relacionamento','Uma conversa com o decisor'],['Parceria','Uma solução desenhada'],['Escala','Vários protegidos']].map((x,i)=>`<button class="step ${i==2?'on':''}"><span class="n">PASSO ${i+1}</span><b>${x[0]}</b><span class="disc">${x[1]}</span></button>`).join('')}</div>
+  <div class="split"><div class="panel stack">${field('func','Colaboradores por empresa (plano empresarial)',10,300,5)}${field('cam','Caminhões por frota',3,80,1)}${field('c','Contratos fechados por mês',1,8,1)}</div>
+  <div class="panel stack" id="prot"></div></div></div>`,
+ init(el){const upd=()=>{const n=S.c*12;$('#prot',el).innerHTML=`
+   <div class="hint-line">Em 12 meses, com ${n} contratos</div>
+   <div><div class="mult gold" data-n="${n*S.func}">0</div><div class="disc">vidas com plano empresarial, se todos forem planos de ${S.func} colaboradores</div></div>
+   <div><div class="mult" style="color:var(--blue)" data-n="${n*S.cam}">0</div><div class="disc">caminhões protegidos, se todos forem frotas de ${S.cam} veículos</div></div>
+   <div class="disc">Cada número é um vínculo recorrente: uma conversa, muitas renovações.</div>`;
+   $$('[data-n]',el).forEach(e=>tween(e,+e.dataset.n,n=>Math.round(n).toLocaleString('pt-BR')))};
+  bindRanges(el,upd);upd();
+  $$('#flow .step',el).forEach(b=>b.onclick=()=>{$$('#flow .step',el).forEach(x=>x.classList.toggle('on',x===b))})}},
+
+{eyebrow:'06 · O PRODUTO',nav:'Frotas e planos empresariais',
+ notes:'Alterne entre as duas frentes. Pergunte ao corretor quais empresas da região ele já conhece que se encaixam.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">06 · O PRODUTO</div><h2>Frotas e planos empresariais</h2>
+  <p class="lead">Onde estão os grandes contratos.</p>
+  <div class="tabs" role="tablist"><button class="tab on" role="tab" data-t="0">Frotas de caminhões</button><button class="tab" role="tab" data-t="1">Planos empresariais</button></div>
+  <div class="panel split" id="prod"></div></div>`,
+ init(el){const P=[
+  {h:'Proteção para operações que não podem parar.',who:['Transportadoras e operadores logísticos','Agronegócio e distribuidores','Empresas com frota própria'],open:'“Quanto custa para sua operação cada dia com um caminhão parado?”',tag:'Contrato recorrente, renovação anual'},
+  {h:'Benefícios que valorizam cada colaborador.',who:['Empresas em crescimento com equipe a partir de 10 pessoas','Indústrias e prestadoras de serviço','Negócios que disputam talento'],open:'“Como vocês estão cuidando da saúde da equipe hoje, e quanto isso pesa na retenção?”',tag:'Uma venda, dezenas de vidas'}];
+  const show=i=>{const p=P[i];$('#prod',el).innerHTML=`<div class="stack"><h3 style="font-size:28px">${p.h}</h3><ul class="list">${p.who.map(w=>`<li>${ico('check')}${w}</li>`).join('')}</ul><span class="chip">${p.tag}</span></div>
+   <div class="stack"><div class="eyebrow">Pergunta de abertura</div><div class="quote-box" id="qb">${p.open}</div><button class="copy" id="cp">${ico('copy',14)} Copiar pergunta</button></div>`;
+   $('#cp',el).onclick=e=>copyText(p.open.replace(/[“”]/g,''),e.currentTarget)};
+  $$('.tab',el).forEach(t=>t.onclick=()=>{$$('.tab',el).forEach(x=>x.classList.toggle('on',x===t));show(+t.dataset.t)});show(0)}},
+
+{eyebrow:'07 · O MÉTODO',nav:'Plante relacionamento, colha escala',
+ notes:'Clique nas etapas em ordem. Em cada uma há um roteiro pronto que o corretor pode copiar e usar na semana seguinte.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">07 · O MÉTODO</div><h2>Plante relacionamento. Colha escala.</h2>
+  <p class="lead">Um método simples para construir uma nova fonte de receita.</p>
+  <div class="steps" id="st"></div><div class="panel split" id="stp"></div></div>`,
+ init(el){const M=[
+  ['Mapear empresas','Liste 20 empresas da sua região com frota ou mais de 10 colaboradores. Priorize as que você já conhece ou onde tem um contato.','Ex.: transportadora do seu bairro, indústria onde um cliente seu trabalha.'],
+  ['Abrir conversas','Peça uma indicação ou aborde o decisor com uma pergunta, nunca com uma tabela de preços.','“Oi, [nome]. Trabalho com proteção para empresas e queria entender como vocês cuidam da [frota/equipe] hoje. Posso te fazer duas perguntas rápidas?”'],
+  ['Desenhar soluções','Levante o perfil de risco, monte a proposta com o time Mestres do Seguro e apresente como solução de negócio.','“Com base no que você me contou, desenhei esta proposta para reduzir [dor]. Posso explicar em 15 minutos?”'],
+  ['Colher resultados','Feche, acompanhe sinistros e renovações e peça indicações de outras empresas.','“Que outra empresa que você conhece também poderia se beneficiar dessa proteção?”']];
+  let cur=0;const done=new Set();
+  const paint=()=>{$('#st',el).innerHTML=M.map((m,i)=>`<button class="step ${i===cur?'on':''} ${done.has(i)?'done':''}" data-i="${i}"><span class="n">ETAPA 0${i+1}</span><b>${m[0]}</b></button>`).join('');
+   $('#stp',el).innerHTML=`<div class="stack"><h3 style="font-size:26px">${M[cur][0]}</h3><p class="lead" style="font-size:17px">${M[cur][1]}</p></div><div><div class="eyebrow" style="margin-bottom:8px">Roteiro</div><div class="quote-box">${M[cur][2]}</div><button class="copy" id="cp">${ico('copy',14)} Copiar roteiro</button> <button class="copy" id="nx">${cur<3?'Concluir e avançar':'Concluir método'}</button></div>`;
+   $$('#st .step',el).forEach(b=>b.onclick=()=>{cur=+b.dataset.i;paint()});
+   $('#cp',el).onclick=e=>copyText(M[cur][2].replace(/[“”]/g,''),e.currentTarget);
+   $('#nx',el).onclick=()=>{done.add(cur);if(cur<3)cur++;else toast('Método completo!');paint()}};paint()}},
+
+{eyebrow:'08 · A TRANSFORMAÇÃO',nav:'De corretor a parceiro',
+ notes:'Peça para arrastar a linha. Do lado esquerdo, o corretor de apólices; do direito, o parceiro estratégico.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">08 · A TRANSFORMAÇÃO</div><h2>De corretor para parceiro estratégico.</h2>
+  <p class="lead">A gente não vende apólices.<br><em>A gente resolve riscos.</em></p>
+  <div class="cmp" id="cmp" style="--x:50%">
+   <div class="cmp-layer before"><span class="cmp-tag">Antes · corretor de apólices</span>${[['Conversa','Preço e franquia'],['Foco','Fechar a venda do mês'],['Disputa','Cotação contra cotação'],['Relação','Transacional'],['Ganho','Comissão pequena e pontual']].map(r=>`<div class="cmp-row"><small>${r[0]}</small><b>${r[1]}</b></div>`).join('')}</div>
+   <div class="cmp-layer after"><span class="cmp-tag">Depois · parceiro estratégico</span>${[['Conversa','Risco e continuidade do negócio'],['Foco','Carteira recorrente'],['Disputa','Indispensável, fora da guerra de preço'],['Relação','Longa e consultiva'],['Ganho','Comissão que se repete e cresce']].map(r=>`<div class="cmp-row"><small>${r[0]}</small><b>${r[1]}</b></div>`).join('')}</div>
+   <div class="cmp-handle"></div><input type="range" min="0" max="100" value="50" aria-label="Comparar antes e depois" id="cr"></div>
+  <p class="hint-line">Arraste para comparar</p></div>`,
+ init(el){const c=$('#cmp',el);$('#cr',el).oninput=e=>c.style.setProperty('--x',e.target.value+'%')}},
+
+{eyebrow:'09 · SEU PERFIL',nav:'Quiz de perfil',
+ notes:'Quiz rápido de 4 perguntas. O resultado indica por onde o corretor deve começar e alimenta o resumo final.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">09 · SEU PERFIL</div><h2>Onde você está na plantação?</h2><div class="panel stack" id="qz"></div></div>`,
+ init(el){const Q=[
+  ['Hoje, qual é a sua principal carteira?',['Pessoas físicas (auto, vida, residencial)',1],['Pessoas físicas e algumas empresas pequenas',2],['Já atendo empresas e frotas',3]],
+  ['Quantas horas por semana você gasta prospectando?',['Quase nenhuma, vivo de indicação',1],['Entre 5 e 15 horas',2],['Mais de 15 horas',3]],
+  ['Quão confortável você está em falar com donos de empresas?',['Prefiro evitar',1],['Consigo, com um bom roteiro',2],['É o que mais gosto de fazer',3]],
+  ['Qual é o seu maior desejo para os próximos 12 meses?',['Ter renda mais previsível',1],['Dobrar a renda',2],['Montar uma operação de escala',3]]];
+  const R=[['Semeador','Comece pequeno: escolha 5 empresas e use o roteiro de abertura da etapa 2. Foco em planos empresariais para equipes pequenas.'],
+   ['Construtor','Você tem base para ir além. Monte seu mapa de 20 empresas e feche seu primeiro contrato de frota nos próximos 90 dias.'],
+   ['Colheitador','Você já está pronto para escala. O próximo passo é estruturar a carteira com apoio do time Mestres do Seguro e multiplicar contratos.']];
+  let i=0,pts=0;const ask=()=>{$('#qz',el).innerHTML=`<div class="qbar" style="--w:${i/Q.length*100}%"><i></i></div><div class="eyebrow">Pergunta ${i+1} de ${Q.length}</div><h3 style="font-size:clamp(22px,3vw,32px)">${Q[i][0]}</h3><div class="qopts">${Q[i].slice(1).map((o,j)=>`<button class="qopt" data-v="${o[1]}">${o[0]}</button>`).join('')}</div>`;
+   $$('.qopt',el).forEach(b=>b.onclick=()=>{pts+=+b.dataset.v;i++;i<Q.length?ask():end()})};
+  const end=()=>{const k=pts<=6?0:pts<=9?1:2;S.perfil=R[k][0];$('#qz',el).innerHTML=`<div class="eyebrow">Seu perfil</div><div class="profile">${R[k][0]}</div><p class="lead">${R[k][1]}</p><div><button class="copy" id="rs">Refazer quiz</button></div>`;$('#rs',el).onclick=()=>{i=0;pts=0;ask()}};
+  ask()}},
+
+{eyebrow:'10 · AS DÚVIDAS',nav:'Objeções',
+ notes:'Antecipe as objeções reais. Deixe o corretor escolher a que mais pesa e responda com calma.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">10 · AS DÚVIDAS</div><h2>O que costuma segurar o corretor?</h2><p class="lead">Escolha a que mais pesa para você.</p>
+  <div class="tabs" id="ob"></div><div class="panel" id="oa" style="min-height:120px"></div></div>`,
+ init(el){const O=[
+  ['Não tenho carteira empresarial','Ninguém começa com uma. Empresas estão dentro da sua rede: clientes que são donos de negócio, fornecedores, vizinhos. Comece com 5 conversas e use o roteiro do método.'],
+  ['Grandes contratos são complicados','Você não faz sozinho. O time Mestres do Seguro apoia a cotação, a proposta e o pós-venda. Seu papel é o relacionamento.'],
+  ['O ciclo de venda é longo','É mais longo, e por isso mais valioso. Um contrato fechado rende por anos. O varejo exige recomeçar toda semana.'],
+  ['E se eu perder meu cliente do varejo?','Você não abandona o varejo. O atacado soma uma segunda fonte de receita e dilui o risco de depender só de volume.']];
+  const paint=i=>{$('#ob',el).innerHTML=O.map((o,j)=>`<button class="chip ${j===i?'on':''}" data-i="${j}">${o[0]}</button>`).join('');
+   $('#oa',el).innerHTML=`<h3 style="font-size:24px;margin-bottom:10px">${O[i][0]}</h3><p class="lead" style="font-size:18px">${O[i][1]}</p>`;
+   $$('#ob .chip',el).forEach(b=>b.onclick=()=>paint(+b.dataset.i))};paint(0)}},
+
+{eyebrow:'11 · O PLANO',nav:'Plano de 90 dias',
+ notes:'Entregue um plano concreto. O corretor marca o que já fez e vê o progresso subir.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">11 · O PLANO</div><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap"><div class="ring" id="ring"><span id="rv">0%</span></div><div><h2>Seus primeiros 90 dias</h2><p class="lead">Marque o que você já fez.</p></div></div><div class="road" id="rd"></div></div>`,
+ init(el){const P=[['Plantar','Dias 1–30',['Mapear 20 empresas','Escolher 5 prioritárias','Fazer 5 primeiras conversas']],
+  ['Cultivar','Dias 31–60',['Levantar perfil de risco','Montar 2 propostas com o time','Retomar contatos em aberto']],
+  ['Colher','Dias 61–90',['Fechar o primeiro contrato','Pedir 3 indicações','Planejar a próxima rodada']]];
+  let st={};try{st=JSON.parse(localStorage.getItem('mds-road')||'{}')}catch(_){}
+  const total=9;const paint=()=>{$('#rd',el).innerHTML=P.map((p,a)=>`<div class="phase"><span class="days">${p[1]}</span><h3>${p[0]}</h3>${p[2].map((t,b)=>{const k=a+'-'+b;return `<button class="chk ${st[k]?'on':''}" data-k="${k}" role="checkbox" aria-checked="${!!st[k]}"><span class="box">${ico('check')}</span><span>${t}</span></button>`}).join('')}</div>`).join('');
+   const n=Object.values(st).filter(Boolean).length,pc=Math.round(n/total*100);$('#ring',el).style.setProperty('--v',pc);$('#rv',el).textContent=pc+'%';
+   $$('.chk',el).forEach(b=>b.onclick=()=>{st[b.dataset.k]=!st[b.dataset.k];try{localStorage.setItem('mds-road',JSON.stringify(st))}catch(_){};paint();if(Object.values(st).filter(Boolean).length===total)confetti()})};paint()}},
+
+{eyebrow:'12 · O PRÓXIMO PASSO',nav:'Quero participar',
+ notes:'Feche com o resumo do corretor. Ele deixa os dados e leva o resumo com os números que simulou.',
+ render:()=>`<div class="slide-inner"><div class="eyebrow">12 · O PRÓXIMO PASSO</div><h2>Sua próxima grande venda começa aqui.</h2>
+  <p class="lead">Escolha uma empresa. Faça uma pergunta.<br>Comece a sua grande plantação.</p>
+  <div class="split"><form class="panel form" id="fm" novalidate>
+   <label class="in" for="f-n">Seu nome<input id="f-n" autocomplete="name"><span class="err" id="e-n"></span></label>
+   <label class="in" for="f-z">WhatsApp<input id="f-z" inputmode="tel" autocomplete="tel" placeholder="(11) 90000-0000"><span class="err" id="e-z"></span></label>
+   <label class="in" for="f-c">Quantos clientes empresariais você já tem?<input id="f-c" type="number" min="0" inputmode="numeric" value="0"><span class="err" id="e-c"></span></label>
+   <button class="cta-btn" type="submit">Quero plantar meu crescimento ${ico('right')}</button></form>
+  <div class="panel stack" id="ok"><div class="eyebrow">Seu resumo</div><p class="disc">Preencha o formulário para gerar o resumo com os números do seu simulador.</p></div></div></div>`,
+ init(el){$('#f-n',el).value=S.nome;$('#f-z',el).value=S.zap;if(S.cart!=='')$('#f-c',el).value=S.cart;
+  $('#fm',el).addEventListener('submit',e=>{e.preventDefault();const n=$('#f-n',el).value.trim(),z=$('#f-z',el).value.trim(),c=$('#f-c',el).value;let ok=true;
+   const er=(id,t)=>{$('#'+id,el).textContent=t;if(t)ok=false};
+   er('e-n',n.length<2?'Informe seu nome.':'');er('e-z',z.replace(/\D/g,'').length<10?'Informe um WhatsApp com DDD.':'');er('e-c',c===''||+c<0?'Informe um número igual ou maior que zero.':'');
+   if(!ok)return;Object.assign(S,{nome:n,zap:z,cart:c});const r=calc();
+   const txt=`INTERESSE EM VENDAS EM ATACADO · MESTRES DO SEGURO
+Nome: ${n}
+WhatsApp: ${z}
+Clientes empresariais hoje: ${c}
+Perfil no quiz: ${S.perfil||'não respondido'}
+
+SIMULAÇÃO (ilustrativa)
+${S.c} contrato(s)/mês · prêmio médio ${brl(S.prem)} · comissão ${S.pct}%
+Comissão no 1º ano: ${brl(r.y1)}
+Renda mensal no mês 12: ${brl(r.run)}
+2º ano projetado: ${brl(r.y2)}
+Ganho atual no varejo: ${brl(S.varejo)}/mês`;
+   $('#ok',el).innerHTML=`<div class="eyebrow">Tudo certo, ${n.split(' ')[0]}!</div><div class="summary" id="sm"></div><button class="copy" id="cps">${ico('copy',14)} Copiar resumo</button><p class="disc">Copie e envie este resumo ao time Mestres do Seguro pelo canal combinado.</p>`;
+   $('#sm',el).textContent=txt;$('#cps',el).onclick=ev=>copyText(txt,ev.currentTarget);confetti()})}},
+
+{eyebrow:'13 · MESTRES DO SEGURO',nav:'Encerramento',
+ notes:'Agradeça e abra para perguntas. Volte à visão geral (G) se alguém quiser rever um slide.',
+ render:()=>`<div class="slide-inner" style="align-items:flex-start"><div class="eyebrow">13 · MESTRES DO SEGURO</div><div class="big-logo"><svg viewBox="0 0 32 32"><path d="M16 2 4 7v8c0 7.5 5 13 12 15 7-2 12-7.5 12-15V7L16 2Z" fill="none" stroke="#f6b51b" stroke-width="2.2"/><path d="M10 17l4 4 8-9" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Mestres<br>do Seguro</span></div>
+  <h2>O campo está pronto.</h2><p class="lead">Obrigado por fazer parte dessa história.</p>
+  <div class="cover-tags"><span class="chip">Estratégia</span><span class="chip">Confiança</span><span class="chip">Escala</span></div>
+  <div class="cover-tags"><button class="copy" id="again">Voltar ao início</button><button class="copy" id="ov">Ver todos os slides</button></div></div>`,
+ init(el){$('#again',el).onclick=()=>go(0);$('#ov',el).onclick=openGrid}}
+];
+
+/* ---------- motor ---------- */
+let idx=0,started=false,lastDir=1;
+const stage=$('#stage');
+function renderBtns(){$('#prev').innerHTML=ico('left');$('#bNotes').innerHTML=ico('note');$('#bLaser').innerHTML=ico('laser');$('#bGrid').innerHTML=ico('grid');
+  $('#progress').innerHTML=SL.map((s,i)=>`<button aria-label="Ir para o slide ${i+1}: ${s.nav}" title="${s.nav}" data-i="${i}"></button>`).join('');
+  $$('#progress button').forEach(b=>b.onclick=()=>go(+b.dataset.i))}
+function go(n){n=Math.max(0,Math.min(SL.length-1,n));lastDir=n>=idx?1:-1;const first=!stage.children.length;idx=n;
+  const s=SL[n];stage.innerHTML=`<div class="slide ${lastDir<0?'back':''}">${s.render()}</div>`;stage.scrollTop=0;
+  const wrap=stage.firstChild;s.init&&s.init(wrap);
+  $$('#progress button').forEach((b,i)=>b.classList.toggle('on',i<=n));
+  $('#count').innerHTML=`<b>${String(n+1).padStart(2,'0')}</b> / ${SL.length}`;
+  $('#prev').disabled=n===0;
+  $('#nextWrap').innerHTML=(n===0&&!started)?`<button class="start-btn" id="st0">Iniciar apresentação ${ico('right')}</button>`:`<button class="ibtn" id="next" aria-label="Próximo slide" ${n===SL.length-1?'disabled':''}>${ico('right')}</button>`;
+  const sb=$('#st0'),nb=$('#next');if(sb)sb.onclick=()=>{started=true;startTimer();go(1)};if(nb)nb.onclick=()=>go(idx+1);
+  $('#notes').innerHTML=`<small>Notas do apresentador · ${s.nav}</small>${s.notes}`;
+  if(!first){try{history.replaceState(null,'','#slide-'+(n+1))}catch(_){}}}
+$('#prev').onclick=()=>go(idx-1);
+
+/* timer */
+let t0=0,tm;function startTimer(){if(tm)return;t0=Date.now();tm=setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);$('#timer').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000)}
+
+/* overlays */
+const ov=$('#overlay');
+function closeOv(){ov.hidden=true;ov.innerHTML=''}
+function openGrid(){ov.hidden=false;ov.innerHTML=`<div class="box"><div class="ov-head"><h3 style="font-size:28px">Todos os slides</h3><button class="ibtn" id="cx" aria-label="Fechar">${ico('x')}</button></div><div class="thumbs">${SL.map((s,i)=>`<button class="thumb ${i===idx?'cur':''}" data-i="${i}"><small>${String(i+1).padStart(2,'0')}</small><b>${s.nav}</b></button>`).join('')}</div></div>`;
+  $('#cx').onclick=closeOv;$$('.thumb',ov).forEach(b=>b.onclick=()=>{started=true;startTimer();closeOv();go(+b.dataset.i)});$('.thumb.cur',ov).focus()}
+function openHelp(){ov.hidden=false;ov.innerHTML=`<div class="box"><div class="ov-head"><h3 style="font-size:28px">Atalhos</h3><button class="ibtn" id="cx" aria-label="Fechar">${ico('x')}</button></div><div class="keys">
+  <div><kbd>→</kbd><kbd>Espaço</kbd> Próximo slide</div><div><kbd>←</kbd> Slide anterior</div><div><kbd>Home</kbd><kbd>End</kbd> Primeiro e último</div>
+  <div><kbd>G</kbd> Visão geral</div><div><kbd>N</kbd> Notas do apresentador</div><div><kbd>L</kbd> Ponteiro laser</div><div><kbd>F</kbd> Tela cheia</div><div><kbd>Esc</kbd> Fechar painéis</div></div></div>`;$('#cx').onclick=closeOv}
+$('#bGrid').onclick=openGrid;
+function toggleNotes(){const n=$('#notes');n.hidden=!n.hidden;$('#bNotes').setAttribute('aria-pressed',!n.hidden)}
+$('#notes').hidden=true;$('#bNotes').onclick=toggleNotes;
+function toggleLaser(){const b=$('#bLaser'),on=b.getAttribute('aria-pressed')!=='true';b.setAttribute('aria-pressed',on);$('#laser').hidden=!on;document.body.style.cursor=on?'none':''}
+$('#bLaser').onclick=toggleLaser;$('#laser').hidden=true;
+addEventListener('pointermove',e=>{const l=$('#laser');if(!l.hidden){l.style.left=e.clientX+'px';l.style.top=e.clientY+'px'}});
+function fs(){try{document.fullscreenElement?document.exitFullscreen():document.documentElement.requestFullscreen().catch(()=>toast('Tela cheia indisponível aqui'))}catch(_){toast('Tela cheia indisponível aqui')}}
+
+/* teclado */
+addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;const t=e.target,field=t.matches&&t.matches('input,textarea,select');
+  if(e.key==='Escape'){closeOv();return}
+  if(!ov.hidden)return;
+  if(e.key==='ArrowRight'||e.key==='PageDown'){if(field&&t.type!=='range'&&false)return;if(field)return;e.preventDefault();if(idx===0)started=true,startTimer();go(idx+1)}
+  else if(e.key===' '){if(field||t.matches('button,a'))return;e.preventDefault();if(idx===0)started=true,startTimer();go(idx+1)}
+  else if(e.key==='ArrowLeft'||e.key==='PageUp'){if(field)return;e.preventDefault();go(idx-1)}
+  else if(field)return;
+  else if(e.key==='Home')go(0);else if(e.key==='End')go(SL.length-1);
+  else if(e.key==='g'||e.key==='G')openGrid();else if(e.key==='n'||e.key==='N')toggleNotes();
+  else if(e.key==='l'||e.key==='L')toggleLaser();else if(e.key==='f'||e.key==='F')fs();else if(e.key==='?')openHelp()});
+
+/* swipe */
+let sx=0,sy=0,ok=false;
+stage.addEventListener('touchstart',e=>{ok=!e.target.closest('input,.cmp,.tt');sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+stage.addEventListener('touchend',e=>{if(!ok)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;if(Math.abs(dx)>70&&Math.abs(dx)>Math.abs(dy)*1.6){if(dx<0&&idx===0)started=true,startTimer();go(idx+(dx<0?1:-1))}},{passive:true});
+
+/* confete */
+function confetti(){if(reduce)return;const c=document.createElement('canvas');c.className='confetti';document.body.appendChild(c);const x=c.getContext('2d');c.width=innerWidth;c.height=innerHeight;
+  const cols=['#f6b51b','#3b7bff','#38d39f','#ffffff'];const p=Array.from({length:130},()=>({x:innerWidth/2,y:innerHeight*.6,vx:(Math.random()-.5)*16,vy:-Math.random()*16-4,s:Math.random()*7+4,c:cols[Math.random()*4|0],r:Math.random()*6}));
+  let f=0;(function a(){x.clearRect(0,0,c.width,c.height);p.forEach(q=>{q.vy+=.35;q.x+=q.vx;q.y+=q.vy;q.r+=.2;x.save();x.translate(q.x,q.y);x.rotate(q.r);x.fillStyle=q.c;x.fillRect(-q.s/2,-q.s/4,q.s,q.s/2);x.restore()});if(++f<110)requestAnimationFrame(a);else c.remove()})()}
+
+/* início */
+renderBtns();
+const h=parseInt((location.hash.match(/^#slide-(\d+)$/)||[])[1]);
+if(h>1){started=true;startTimer()}
+go(h>0&&h<=SL.length?h-1:0);
+addEventListener('hashchange',()=>{const m=location.hash.match(/^#slide-(\d+)$/);if(m){const n=+m[1]-1;if(n!==idx&&n>=0&&n<SL.length)go(n)}});
+</script>
